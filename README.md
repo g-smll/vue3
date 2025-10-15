@@ -81,3 +81,59 @@ import './style.css'
 - 🔄 **重构友好**：文件移动时不需要修改导入路径
 - 🎯 **代码一致性**：整个项目使用统一的导入风格
 - 🛠️ **IDE 支持**：WebStorm、VS Code 等 IDE 都能正确识别和自动补全
+
+### 3. 组件结构
+
+项目采用组件化开发模式，目前包含以下组件：
+
+#### Header 组件 (`src/components/header/index.vue`)
+
+顶部导航组件，包含页面标题和导航信息。
+
+```vue
+<template>
+  <div><h1>顶部</h1></div>
+</template>
+```
+
+#### Footer 组件 (`src/components/footer/index.vue`)
+
+底部信息组件，包含版权信息和项目说明。
+
+```vue
+<template>
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; 2024 Vue3 项目. 版权所有.</p>
+      <p>基于 Vue 3 + TypeScript + Vite 构建</p>
+    </div>
+  </footer>
+</template>
+```
+
+#### 主页面 (`src/App.vue`)
+
+主页面组件，引入并使用 Header 和 Footer 组件：
+
+```vue
+<script setup lang="ts">
+import Header from '@/components/header/index.vue'
+import Footer from '@/components/footer/index.vue'
+</script>
+
+<template>
+  <div class="app">
+    <Header />
+    <main class="main-content">
+      <!-- 主要内容区域 -->
+    </main>
+    <Footer />
+  </div>
+</template>
+```
+
+**组件特点：**
+- 🧩 **模块化设计**：每个组件独立封装，便于维护和复用
+- 📦 **别名导入**：使用 `@/` 别名简化组件导入路径
+- 🎨 **样式隔离**：使用 `scoped` 样式避免样式冲突
+- 📱 **响应式布局**：采用 Flexbox 布局实现自适应设计
