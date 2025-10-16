@@ -113,23 +113,35 @@ import './style.css'
 
 #### 主页面 (`src/App.vue`)
 
-主页面组件，引入并使用 Header 和 Footer 组件：
+主页面组件，引入 Header 和 Footer 组件，并使用 `<router-view>` 显示路由页面：
 
 ```vue
 <script setup lang="ts">
-import Header from '@/components/header/index.vue'
-import Footer from '@/components/footer/index.vue'
+
 </script>
 
 <template>
-  <div class="app">
-    <Header />
-    <main class="main-content">
-      <!-- 主要内容区域 -->
-    </main>
-    <Footer />
+  <div class="container">
+    <Header/>
+    <div class="content">
+      <router-view></router-view>
+    </div>
+    <Footer/>
   </div>
 </template>
+
+<style scoped lang="scss">
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .content {
+    margin-top: 70px;
+    width: 1200px;
+    min-height: 700px;
+  }
+}
+</style>
 ```
 
 **组件特点：**
@@ -137,3 +149,129 @@ import Footer from '@/components/footer/index.vue'
 - 📦 **别名导入**：使用 `@/` 别名简化组件导入路径
 - 🎨 **样式隔离**：使用 `scoped` 样式避免样式冲突
 - 📱 **响应式布局**：采用 Flexbox 布局实现自适应设计
+
+### 4. Vue Router 路由配置
+
+项目集成了 Vue Router 4，实现单页面应用的路由管理功能。
+
+#### 依赖安装
+
+```bash
+# 使用 pnpm 安装 Vue Router
+pnpm add vue-router@4
+
+# 或使用 npm
+npm install vue-router@4
+
+# 或使用 yarn
+yarn add vue-router@4
+```
+
+#### 路由配置文件 (`src/router/index.ts`)
+
+```typescript
+import {createRouter, createWebHistory} from "vue-router";
+
+export default createRouter({
+    history: createWebHistory(),
+    routes: [
+        {
+            path: "/home",
+            component: () => import("@/pages/home/index.vue"),
+            meta: {
+                title: "首页",
+            },
+        },
+        {
+            path: "/detail",
+            component: () => import("@/pages/detail/index.vue"),
+        },
+        {
+            path: "/",
+            redirect: "/home",
+        }
+    ]
+});
+```
+
+#### 主应用配置 (`src/main.ts`)
+
+在主应用中注册路由：
+
+```typescript
+import { createApp } from 'vue'
+import App from '@/App.vue'
+import Header from '@/components/header/index.vue'
+import Footer from '@/components/footer/index.vue'
+import router from '@/router'
+
+const app = createApp(App)
+app.component('Header', Header)
+app.component('Footer', Footer)
+app.use(router)  // 注册路由
+app.mount('#app')
+```
+
+#### 页面组件
+
+项目采用 `pages` 目录结构管理页面组件：
+
+**首页组件 (`src/pages/home/index.vue`)**
+```vue
+<script setup lang="ts">
+
+</script>
+
+<template>
+  <div>home</div>
+</template>
+
+<style scoped lang="scss">
+
+</style>
+```
+
+**详情页面 (`src/pages/detail/index.vue`)**
+```vue
+<script setup lang="ts">
+
+</script>
+
+<template>
+  <div>detail</div>
+</template>
+
+<style scoped lang="scss">
+
+</style>
+```
+
+#### 路由使用
+
+**声明式导航**
+```vue
+<template>
+  <!-- 使用 router-link 进行页面跳转 -->
+  <router-link to="/home">首页</router-link>
+  <router-link to="/detail">详情</router-link>
+</template>
+```
+
+**编程式导航**
+```typescript
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// 跳转到首页
+router.push('/home')
+
+// 跳转到详情页面
+router.push('/detail')
+```
+
+**路由特点：**
+- 🛣️ **History 模式**：使用 HTML5 History API，URL 更加美观
+- 📦 **懒加载**：路由组件采用动态导入，实现代码分割
+- 🎯 **类型安全**：完整的 TypeScript 支持
+- 🔄 **编程式导航**：支持声明式和编程式两种导航方式

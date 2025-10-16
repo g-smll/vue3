@@ -6,7 +6,7 @@
   <div class="container">
     <Header/>
     <div class="content">
-      content
+      <router-view></router-view>
     </div>
     <Footer/>
   </div>
