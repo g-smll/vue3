@@ -4,13 +4,11 @@
 
 <template>
   <div class="container">
-    <Header />
+    <Header/>
     <div class="content">
       content
     </div>
-    <div class="button">
-      footer
-    </div>
+    <Footer/>
   </div>
 
 </template>

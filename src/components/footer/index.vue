@@ -3,9 +3,33 @@
 </script>
 
 <template>
-  $END$
+  <div class="bottom">
+    <div class="content">
+      <div class="left">备案信息#</div>
+      <div class="right"><span>合作方式|联系我们</span></div>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
-
+.bottom {
+  width: 100%;
+  height: 50px;
+  background-color: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  .content {
+    width: 1200px;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    .right {
+      span {
+        margin: 0px 5px;
+      }
+    }
+  }
+}
 </style>
