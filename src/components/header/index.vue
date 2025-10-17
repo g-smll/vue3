@@ -7,7 +7,7 @@
     <div class="content">
       <div class="left">
         <img src="@/assets/images/logo.png" alt="logo" />
-        <p>医疗</p>
+        <p>行业</p>
       </div>
       <div class="right">
         <div class="help">帮助</div>
@@ -20,6 +20,8 @@
 <style scoped lang="scss">
 .top {
   position: fixed;
+  top: 0;
+  left: 0;
   z-index: 999;
   width: 100%;
   height: 70px;

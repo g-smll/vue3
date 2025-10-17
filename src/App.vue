@@ -21,6 +21,7 @@
   align-items: center;
   .content {
     margin-top: 70px;
+    margin-bottom: 20px;
     width: 1200px;
     min-height: 700px;
   }
