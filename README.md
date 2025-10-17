@@ -275,3 +275,195 @@ router.push('/detail')
 - 📦 **懒加载**：路由组件采用动态导入，实现代码分割
 - 🎯 **类型安全**：完整的 TypeScript 支持
 - 🔄 **编程式导航**：支持声明式和编程式两种导航方式
+
+### 5. Element Plus UI 组件库
+
+项目集成了 Element Plus UI 组件库，提供丰富的 Vue 3 组件和完整的中文国际化支持。
+
+#### 依赖安装
+
+```bash
+# 使用 pnpm 安装 Element Plus 和图标库
+pnpm add element-plus @element-plus/icons-vue
+
+# 或使用 npm
+npm install element-plus @element-plus/icons-vue
+
+# 或使用 yarn
+yarn add element-plus @element-plus/icons-vue
+```
+
+**当前版本：**
+- `element-plus`: ^2.11.4
+- `@element-plus/icons-vue`: ^2.3.2
+
+#### 全局配置 (`src/main.ts`)
+
+```typescript
+import { createApp } from 'vue'
+import App from '@/App.vue'
+import Header from '@/components/header/index.vue'
+import Footer from '@/components/footer/index.vue'
+import router from '@/router'
+import ElementPlus from 'element-plus'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import 'element-plus/dist/index.css'
+
+const app = createApp(App)
+app.component('Header', Header)
+app.component('Footer', Footer)
+app.use(router)
+app.use(ElementPlus, {locale: zhCn,})  // 注册 Element Plus 并设置中文国际化
+app.mount('#app')
+```
+
+**配置说明：**
+- 🌐 **中文国际化**：使用 `zhCn` 语言包，所有组件显示中文
+- 🎨 **样式导入**：导入完整的 CSS 样式文件
+- 📦 **全局注册**：所有 Element Plus 组件可在项目中直接使用
+
+#### 组件使用示例
+
+**布局组件 (`src/pages/home/content/index.vue`)**
+
+```vue
+<script setup lang="ts">
+import level from '@/pages/home/level/index.vue'
+import region from '@/pages/home/region/index.vue'
+import card from '@/pages/home/card/index.vue'
+import { ref } from 'vue'
+
+let pageNo = ref<number>(1)
+let pageSize = ref<number>(10)
+</script>
+
+<template>
+  <!-- 使用 Element Plus 栅格布局 -->
+  <el-row :gutter="20">
+    <el-col :span="20">
+      <level/>
+      <region/>
+      <div class="hospital">
+        <card v-for="item in 10" :key="item"/>
+      </div>
+      <div class="pagination-container">
+        <!-- 使用 Element Plus 分页组件 -->
+        <el-pagination
+            v-model:current-page="pageNo"
+            v-model:page-size="pageSize"
+            :page-sizes="[10, 20, 30, 40]"
+            :disabled="false"
+            :background="true"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="400"
+        />
+      </div>
+    </el-col>
+    <el-col :span="4">侧边栏内容</el-col>
+  </el-row>
+</template>
+```
+
+**卡片组件 (`src/pages/home/card/index.vue`)**
+
+```vue
+<template>
+  <!-- 使用 Element Plus 卡片组件 -->
+  <el-card class="card-item" shadow="hover">
+    <div class="content">
+      <div class="left">
+        <div class="hospital_name">医院名称</div>
+        <div class="tip">
+          <div class="level">
+            <!-- 使用 SVG 图标 -->
+            <svg class="icon" viewBox="0 0 1024 1024" width="16" height="16">
+              <!-- SVG 路径 -->
+            </svg>
+            <span>等级</span>
+          </div>
+          <div class="time">
+            <svg class="icon" viewBox="0 0 1024 1024" width="16" height="16">
+              <!-- SVG 路径 -->
+            </svg>
+            <span>时间</span>
+          </div>
+        </div>
+      </div>
+      <div class="right">
+        <img src="@/assets/images/demo_logo.png" alt="医院logo" />
+      </div>
+    </div>
+  </el-card>
+</template>
+```
+
+#### 主要使用的组件
+
+| 组件名称 | 用途 | 文件位置 |
+|---------|------|----------|
+| `el-row` / `el-col` | 栅格布局系统 | `src/pages/home/content/index.vue` |
+| `el-card` | 卡片容器 | `src/pages/home/card/index.vue` |
+| `el-pagination` | 分页组件 | `src/pages/home/content/index.vue` |
+
+#### 样式定制
+
+项目中对 Element Plus 组件进行了样式定制：
+
+```scss
+// 卡片网格布局
+.hospital {
+  display: grid;
+  grid-template-columns: 1fr 1fr;  // 两列等宽布局
+  gap: 20px;                       // 20px 间距
+  margin-bottom: 20px;
+}
+
+// 分页容器
+.pagination-container {
+  display: flex;
+  justify-content: flex-start;     // 左对齐
+  margin-top: 20px;
+}
+
+// 卡片内容布局
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  .left, .right {
+    flex: 1;                       // 等宽分布
+  }
+}
+```
+
+#### SVG 图标使用
+
+项目中使用了自定义 SVG 图标，而不是 Element Plus 图标库：
+
+```vue
+<template>
+  <div class="level">
+    <!-- 自定义 SVG 图标 -->
+    <svg t="1760667656251" class="icon" viewBox="0 0 1024 1024" width="16" height="16">
+      <path d="M621.674667 408.021333c16.618667-74.24..." fill="#000000"/>
+    </svg>
+    <span>等级</span>
+  </div>
+</template>
+
+<style scoped>
+.icon {
+  width: 16px;
+  height: 16px;
+}
+</style>
+```
+
+**Element Plus 特点：**
+- 🎨 **丰富组件**：提供 80+ 高质量 Vue 3 组件
+- 🌐 **国际化支持**：完整的中文本地化
+- 📱 **响应式设计**：支持多种屏幕尺寸
+- 🎯 **TypeScript 支持**：完整的类型定义
+- 🛠️ **主题定制**：支持 CSS 变量和 SCSS 变量定制
+- ⚡ **按需导入**：支持 Tree Shaking，减小打包体积
