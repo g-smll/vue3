@@ -20,6 +20,7 @@ declare namespace ImportMeta {
     readonly VITE_API_BASE_URL: string
     readonly VITE_API_TIMEOUT: number
     readonly VITE_API_VERSION: string
+    readonly VITE_API_HOST_URL: string
 
     // 功能开关
     readonly VITE_ENABLE_MOCK: boolean

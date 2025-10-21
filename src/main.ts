@@ -8,10 +8,6 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import 'element-plus/dist/index.css'
 const app = createApp(App)
 console.log(import.meta.env)
-console.log(import.meta.env.VITE_TITLE_DEV)
-console.log(import.meta.env.VITE_TITLE_PRO)
-const env = import.meta.env.VITE_TITLE_DEV
-console.log(env)
 app.component('Header', Header)
 app.component('Footer', Footer)
 app.use(router)

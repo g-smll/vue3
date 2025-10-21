@@ -853,3 +853,198 @@ export default defineConfig({
 - 📦 **优化构建**：基于 Rollup 的生产构建，支持 Tree Shaking
 - 🛠️ **插件生态**：丰富的插件系统，易于扩展
 - 📱 **现代浏览器**：原生支持 ES 模块和现代 JavaScript 特性
+
+## 🌐 网络请求与跨域配置
+
+### 1. Hook-Fetch 请求库
+
+项目使用 `hook-fetch` 作为 HTTP 请求库，它是一个基于 Fetch API 的轻量级请求库，支持插件系统和 TypeScript。
+
+#### 安装依赖
+
+```bash
+npm install hook-fetch
+```
+
+#### 基础配置 (`src/utils/request.ts`)
+
+```typescript
+import hookFetch, {type HookFetchPlugin} from 'hook-fetch';
+
+interface BaseResponse {
+    code: number;
+    data: never;
+    msg: string;
+    rows: never;
+}
+
+export const request = hookFetch.create<BaseResponse, 'data' | 'rows'>({
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+    timeout: import.meta.env.VITE_API_TIMEOUT,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+});
+```
+
+### 2. HookFetchPlugin 插件系统
+
+使用插件系统来处理请求和响应的通用逻辑：
+
+```typescript
+function jwt_plugin():HookFetchPlugin<BaseResponse>{
+    return {
+        name: 'jwt',
+        beforeRequest: async (config) => {
+            console.log('发起请求:', config.url);
+            return config;
+        },
+        afterResponse: async (response) => {
+            console.log('响应状态:', response.response.status);
+            
+            // 检查 HTTP 状态码
+            if (!response.response.ok) {
+                console.error('HTTP 错误:', response.response.status, response.response.statusText);
+                return Promise.reject(new Error(`HTTP ${response.response.status}: ${response.response.statusText}`));
+            }
+            
+            // 检查业务状态码
+            if (response.result && response.result.code !== undefined) {
+                if (response.result.code === 200 || response.result.code === 0) {
+                    console.log('请求成功:', response.result);
+                    return response;
+                } else {
+                    console.error('业务错误:', response.result.code, response.result.msg);
+                    return Promise.reject(new Error(response.result.msg || '业务处理失败'));
+                }
+            }
+            
+            // 如果没有业务状态码，直接返回
+            console.log('响应数据:', response.result);
+            return response;
+        },
+    };
+}
+
+// 使用插件
+request.use(jwt_plugin());
+```
+
+### 3. 跨域配置 (CORS)
+
+#### Vite 开发服务器代理配置
+
+在 `vite.config.ts` 中配置开发环境的代理，解决跨域问题：
+
+```typescript
+import {defineConfig} from 'vite'
+import vue from '@vitejs/plugin-vue'
+import path from 'path'
+
+export default defineConfig({
+    plugins: [vue()],
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'src')
+        }
+    },
+    server: {
+        proxy: {
+            '/web': 'http://localhost:8000'
+        }
+    }
+})
+```
+
+#### 环境变量配置
+
+**开发环境** (`.env.development`)：
+```bash
+# 开发环境配置
+VITE_TITLE_DEV=dev_environment
+
+# API 配置 - 开发环境使用代理路径
+VITE_API_BASE_URL=/web
+VITE_API_TIMEOUT=5000
+
+# 开发环境说明：
+# 前端地址: http://localhost:5173
+# 后端地址: http://localhost:8000
+# 代理配置: /web -> http://localhost:8000/web
+# 实际请求: http://localhost:5173/web/api/models -> http://localhost:8000/web/api/models
+```
+
+**生产环境** (`.env.production`)：
+```bash
+# 生产环境配置
+VITE_TITLE_PRO=prod environment
+
+# API 配置 - 生产环境使用实际后端地址
+VITE_API_BASE_URL=https://your-production-api.com/web
+VITE_API_TIMEOUT=10000
+
+# 生产环境说明：
+# 需要根据实际的生产环境后端地址进行配置
+```
+
+### 4. 请求封装
+
+#### 导出常用请求方法
+
+```typescript
+// 导出常用的 HTTP 方法
+export const post = request.post;
+export const get = request.get;
+export const put = request.put;
+export const del = request.delete;
+
+export default request;
+```
+
+#### 使用示例
+
+```typescript
+import { get, post } from '@/utils/request';
+
+// GET 请求
+const getModels = async () => {
+    try {
+        const response = await get('/api/models');
+        console.log('模型列表:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('获取模型失败:', error);
+        throw error;
+    }
+};
+
+// POST 请求
+const createModel = async (modelData: any) => {
+    try {
+        const response = await post('/api/models', modelData);
+        console.log('创建成功:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('创建失败:', error);
+        throw error;
+    }
+};
+```
+
+### 5. 跨域解决方案
+
+#### 开发环境
+- 使用 Vite 代理服务器转发请求
+- 前端请求 `/web/api/models` 自动代理到 `http://localhost:8000/web/api/models`
+- 无需后端配置 CORS 头
+
+#### 生产环境
+- 后端需要配置 CORS 头允许前端域名访问
+- 或者使用 Nginx 反向代理统一域名
+
+**Hook-Fetch 特点：**
+- 🚀 **轻量级**：基于原生 Fetch API，体积小巧
+- 🔌 **插件系统**：支持请求/响应拦截器
+- 📝 **TypeScript**：完整的类型支持
+- 🛠️ **易于扩展**：灵活的配置和插件机制
+- 🎯 **专注性能**：针对现代浏览器优化

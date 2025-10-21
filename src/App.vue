@@ -1,5 +1,14 @@
 <script setup lang="ts">
-
+import request from '@/utils/request.ts'
+import {onMounted} from "vue";
+onMounted(async ()=>{
+  try {
+    const res = await request.get('/api/models')
+    console.log('Health check response:', res)
+  } catch (error) {
+    console.error('Health check failed:', error)
+  }
+})
 </script>
 
 <template>
