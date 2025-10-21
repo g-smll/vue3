@@ -467,3 +467,389 @@ let pageSize = ref<number>(10)
 - 🎯 **TypeScript 支持**：完整的类型定义
 - 🛠️ **主题定制**：支持 CSS 变量和 SCSS 变量定制
 - ⚡ **按需导入**：支持 Tree Shaking，减小打包体积
+
+---
+
+## 🚀 Vite 构建工具配置
+
+项目使用 Vite 作为构建工具，提供快速的开发体验和高效的生产构建。
+
+### 环境变量配置
+
+Vite 提供了内置的环境变量，可以通过 `import.meta.env` 访问：
+
+```javascript
+// 在任意 Vue 组件或 TypeScript 文件中输出环境变量
+console.log(import.meta.env)
+```
+
+#### 基础环境变量
+
+| 变量名 | 类型 | 说明 |
+|--------|------|------|
+| `BASE_URL` | `string` | 应用的基础路径，默认为 `/` |
+| `MODE` | `string` | 当前运行模式（`development` 或 `production`） |
+| `DEV` | `boolean` | 是否为开发环境 |
+| `PROD` | `boolean` | 是否为生产环境 |
+| `SSR` | `boolean` | 是否为服务端渲染模式 |
+
+#### 使用示例
+
+```typescript
+// 在组件中使用环境变量
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  // 输出完整的环境变量对象
+  console.log('Vite 环境变量:', import.meta.env)
+  
+  // 根据环境执行不同逻辑
+  if (import.meta.env.DEV) {
+    console.log('当前为开发环境')
+  }
+  
+  if (import.meta.env.PROD) {
+    console.log('当前为生产环境')
+  }
+  
+  console.log('应用基础路径:', import.meta.env.BASE_URL)
+  console.log('运行模式:', import.meta.env.MODE)
+})
+</script>
+```
+
+#### 开发环境输出示例
+
+```javascript
+{
+  BASE_URL: "/",
+  MODE: "development", 
+  DEV: true,
+  PROD: false,
+  SSR: false
+}
+```
+
+#### 生产环境输出示例
+
+```javascript
+{
+  BASE_URL: "/",
+  MODE: "production",
+  DEV: false, 
+  PROD: true,
+  SSR: false
+}
+```
+
+### TypeScript 类型声明配置
+
+#### types 目录结构
+
+项目使用 `types` 目录来管理全局类型声明文件，提供更好的代码组织和类型支持。
+
+```
+types/
+├── vite-env.d.ts     # Vite 环境变量类型声明（简化版本）
+└── import_meta.d.ts  # 完整的 import.meta 类型声明（推荐使用）
+```
+
+#### 类型声明文件说明
+
+##### 1. `vite-env.d.ts` - 简化的环境变量类型声明
+
+这是 Vite 官方推荐的环境变量类型声明文件名，通常用于简单的环境变量扩展：
+
+```typescript
+// types/vite-env.d.ts
+interface ImportMetaEnv {
+    VITE_TITLE_DEV: string;
+    VITE_TITLE_HEAD: number;
+}
+```
+
+**特点：**
+- 官方推荐的文件命名
+- 适用于简单的环境变量类型扩展
+- 直接扩展 `ImportMetaEnv` 接口
+
+##### 2. `import_meta.d.ts` - 完整的类型声明（推荐）
+
+这是更完整和语义化的类型声明文件，提供了更好的代码组织和扩展性：
+
+```typescript
+// types/import_meta.d.ts
+declare namespace ImportMeta {
+  interface ImportMetaEnv {
+    // Vite 内置环境变量（已在 vite/client 中定义）
+    // readonly BASE_URL: string
+    // readonly MODE: string
+    // readonly DEV: boolean
+    // readonly PROD: boolean
+    // readonly SSR: boolean
+
+    // 应用基础信息
+    readonly VITE_APP_TITLE: string
+    readonly VITE_APP_VERSION: string
+    readonly VITE_APP_DESCRIPTION: string
+    readonly VITE_AUTHOR: string
+    readonly VITE_COPYRIGHT: string
+
+    // API 配置
+    readonly VITE_API_BASE_URL: string
+    readonly VITE_API_TIMEOUT: number
+    readonly VITE_API_VERSION: string
+
+    // 功能开关
+    readonly VITE_ENABLE_MOCK: boolean
+    readonly VITE_DEBUG_MODE: boolean
+    readonly VITE_ENABLE_PWA: boolean
+    readonly VITE_ENABLE_ANALYTICS: boolean
+
+    // 第三方服务配置（可选）
+    readonly VITE_SENTRY_DSN?: string
+    readonly VITE_GA_ID?: string
+    readonly VITE_BAIDU_ANALYTICS_ID?: string
+
+    // 构建相关
+    readonly VITE_BUILD_TIME: string
+    readonly VITE_BUILD_VERSION: string
+    readonly VITE_GIT_COMMIT_HASH?: string
+
+    // 主题配置
+    readonly VITE_THEME_COLOR: string
+    readonly VITE_THEME_MODE: 'light' | 'dark' | 'auto'
+
+    // 业务相关配置
+    readonly VITE_HOSPITAL_NAME: string
+    readonly VITE_HOSPITAL_CODE: string
+    readonly VITE_DEFAULT_DEPARTMENT: string
+  }
+}
+
+// 扩展全局 ImportMeta 接口
+declare interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+```
+
+**特点：**
+- 使用 `declare namespace` 提供更好的命名空间管理
+- 包含完整的环境变量类型定义
+- 使用 `readonly` 确保类型安全
+- 支持可选变量（使用 `?`）
+- 提供详细的分类注释
+- 扩展全局 `ImportMeta` 接口
+
+##### 文件选择建议
+
+**推荐使用 `import_meta.d.ts`：**
+- ✅ 更完整的类型声明
+- ✅ 更好的代码组织和可读性
+- ✅ 支持复杂的环境变量配置
+- ✅ 更强的类型安全保障
+
+**使用 `vite-env.d.ts` 的场景：**
+- 简单项目，环境变量较少
+- 需要与 Vite 官方约定保持一致
+- 团队更熟悉官方推荐的命名
+
+#### TypeScript 配置 (`tsconfig.app.json`)
+
+为了让 `types` 目录下的类型声明在整个项目中生效，需要在 TypeScript 配置中包含该目录：
+
+```json
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts", 
+    "src/**/*.tsx", 
+    "src/**/*.vue",
+    "types/**/*.d.ts"  // 包含 types 目录下的类型声明文件
+  ]
+}
+```
+
+**配置说明：**
+- `"types/**/*.d.ts"`：包含 types 目录下所有 `.d.ts` 类型声明文件
+- 这样配置后，`types` 目录中的所有类型声明文件都会在整个项目中生效
+- 可以在任意 Vue 组件或 TypeScript 文件中获得完整的类型提示和检查
+
+#### 使用环境变量示例
+
+##### 1. 使用 Vite 内置环境变量
+
+```typescript
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  // Vite 内置环境变量（无需额外配置）
+  console.log('基础路径:', import.meta.env.BASE_URL)     // string
+  console.log('运行模式:', import.meta.env.MODE)        // string
+  console.log('开发环境:', import.meta.env.DEV)         // boolean
+  console.log('生产环境:', import.meta.env.PROD)        // boolean
+  console.log('SSR模式:', import.meta.env.SSR)          // boolean
+})
+</script>
+```
+
+##### 2. 使用简化的自定义环境变量（vite-env.d.ts）
+
+```typescript
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  // 使用 vite-env.d.ts 中定义的简单环境变量
+  console.log('开发标题:', import.meta.env.VITE_TITLE_DEV)  // string 类型
+  console.log('标题头部:', import.meta.env.VITE_TITLE_HEAD) // number 类型
+})
+</script>
+```
+
+##### 3. 使用完整的自定义环境变量（import_meta.d.ts）
+
+```typescript
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  // 应用基础信息
+  console.log('应用标题:', import.meta.env.VITE_APP_TITLE)
+  console.log('应用版本:', import.meta.env.VITE_APP_VERSION)
+  console.log('作者信息:', import.meta.env.VITE_AUTHOR)
+
+  // API 配置
+  console.log('API地址:', import.meta.env.VITE_API_BASE_URL)
+  console.log('API超时:', import.meta.env.VITE_API_TIMEOUT)
+
+  // 功能开关
+  console.log('Mock模式:', import.meta.env.VITE_ENABLE_MOCK)
+  console.log('调试模式:', import.meta.env.VITE_DEBUG_MODE)
+
+  // 可选的第三方服务配置
+  const sentryDsn = import.meta.env.VITE_SENTRY_DSN
+  if (sentryDsn) {
+    console.log('Sentry DSN:', sentryDsn)
+  }
+
+  // 主题配置
+  console.log('主题颜色:', import.meta.env.VITE_THEME_COLOR)
+  console.log('主题模式:', import.meta.env.VITE_THEME_MODE) // 'light' | 'dark' | 'auto'
+
+  // 业务相关配置
+  console.log('医院名称:', import.meta.env.VITE_HOSPITAL_NAME)
+  console.log('医院代码:', import.meta.env.VITE_HOSPITAL_CODE)
+})
+</script>
+```
+
+##### 4. 在 Composition API 中使用
+
+```typescript
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+// 响应式环境变量
+const apiBaseUrl = ref(import.meta.env.VITE_API_BASE_URL)
+const isDebugMode = ref(import.meta.env.VITE_DEBUG_MODE)
+
+// 计算属性
+const appInfo = computed(() => ({
+  title: import.meta.env.VITE_APP_TITLE,
+  version: import.meta.env.VITE_APP_VERSION,
+  author: import.meta.env.VITE_AUTHOR,
+  mode: import.meta.env.MODE
+}))
+
+// 条件渲染
+const showDebugInfo = computed(() => 
+  import.meta.env.DEV && import.meta.env.VITE_DEBUG_MODE
+)
+</script>
+
+<template>
+  <div>
+    <h1>{{ appInfo.title }}</h1>
+    <p>版本: {{ appInfo.version }}</p>
+    <p>作者: {{ appInfo.author }}</p>
+    
+    <div v-if="showDebugInfo" class="debug-info">
+      <h3>调试信息</h3>
+      <p>API地址: {{ apiBaseUrl }}</p>
+      <p>运行模式: {{ appInfo.mode }}</p>
+    </div>
+  </div>
+</template>
+```
+
+##### 5. 类型安全的环境变量工具函数
+
+```typescript
+// utils/env.ts
+/**
+ * 获取环境变量的工具函数，提供类型安全和默认值支持
+ */
+export const getEnvVar = {
+  // 获取字符串类型环境变量
+  getString: (key: keyof ImportMetaEnv, defaultValue = ''): string => {
+    return import.meta.env[key] as string || defaultValue
+  },
+  
+  // 获取数字类型环境变量
+  getNumber: (key: keyof ImportMetaEnv, defaultValue = 0): number => {
+    const value = import.meta.env[key]
+    return typeof value === 'number' ? value : Number(value) || defaultValue
+  },
+  
+  // 获取布尔类型环境变量
+  getBoolean: (key: keyof ImportMetaEnv, defaultValue = false): boolean => {
+    const value = import.meta.env[key]
+    return typeof value === 'boolean' ? value : value === 'true' || defaultValue
+  },
+  
+  // 获取可选的环境变量
+  getOptional: <T>(key: keyof ImportMetaEnv): T | undefined => {
+    return import.meta.env[key] as T | undefined
+  }
+}
+
+// 使用示例
+const apiUrl = getEnvVar.getString('VITE_API_BASE_URL', 'http://localhost:3000')
+const timeout = getEnvVar.getNumber('VITE_API_TIMEOUT', 5000)
+const enableMock = getEnvVar.getBoolean('VITE_ENABLE_MOCK', false)
+const sentryDsn = getEnvVar.getOptional<string>('VITE_SENTRY_DSN')
+```
+
+### Vite 配置文件 (`vite.config.ts`)
+
+```typescript
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
+  }
+})
+```
+
+**Vite 特点：**
+- ⚡ **极速启动**：基于 ESM 的开发服务器，启动速度极快
+- 🔥 **热更新**：支持 Vue 3 组件的热模块替换（HMR）
+- 📦 **优化构建**：基于 Rollup 的生产构建，支持 Tree Shaking
+- 🛠️ **插件生态**：丰富的插件系统，易于扩展
+- 📱 **现代浏览器**：原生支持 ES 模块和现代 JavaScript 特性
